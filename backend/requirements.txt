@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+faster-whisper
+mediapipe
+groq
+sqlalchemy
+psycopg2-binary
+python-dotenv
+pydantic
+websockets
+mediapipe==0.10.21
+numpy
