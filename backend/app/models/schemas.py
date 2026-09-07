@@ -25,3 +25,9 @@ class SessionReportResponse(BaseModel):
     total_questions: int
     average_content_score: float
     report: str
+
+class NextQuestionRequest(BaseModel):
+    role: str
+
+class NextQuestionResponse(BaseModel):
+    question: str

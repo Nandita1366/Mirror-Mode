@@ -1,0 +1,32 @@
+:root {
+  --bg-page: #F7F5EF;
+  --bg-card: #EFEEE3;
+  --bg-surface: #FFFFFF;
+
+  --accent: #5A6B45;
+  --accent-soft: #7C8A63;
+  --accent-muted: #E4E2D5;
+
+  --text-primary: #2C2E24;
+  --text-secondary: #6B6F5E;
+  --text-muted: #9A9C8C;
+
+  --border: #C9C7B8;
+  --border-soft: #DEDCCE;
+
+  --warn: #B5652F;
+  --success: #5A6B45;
+
+  --font-display: Georgia, 'Iowan Old Style', serif;
+  --font-body: -apple-system, 'Inter', sans-serif;
+
+  --radius-card: 12px;
+  --radius-control: 8px;
+}
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  margin: 0;
+}

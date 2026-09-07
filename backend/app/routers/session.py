@@ -12,6 +12,7 @@ from app.models.schemas import (
 from app.llm.evaluator import generate_question, evaluate_answer, generate_report
 from app.db.crud import create_session, save_answer, get_session_answers, get_session
 from fastapi import HTTPException
+from app.models.schemas import NextQuestionRequest, NextQuestionResponse
 
 router = APIRouter(prefix="/session", tags=["session"])
 
@@ -59,3 +60,8 @@ def get_report(session_id: int, db: DBSession = Depends(get_db)):
         average_content_score=round(avg_score, 2),
         report=report_text
     )
+
+@router.post("/next-question", response_model=NextQuestionResponse)
+def next_question(req: NextQuestionRequest):
+    question = generate_question(req.role)
+    return NextQuestionResponse(question=question)

@@ -6,14 +6,14 @@ from app.llm.evaluator import evaluate_answer
 from app.vision.mediapipe_service import process_frame
 from app.vision.metrics import eye_contact_score, posture_score
 from app.vision.aggregator import VisionAggregator
+from app.db.database import SessionLocal
+from app.db.crud import save_answer
 import os
 import json
 import numpy as np
 import cv2
 
 router = APIRouter()
-
-# Track one aggregator per session
 session_aggregators = {}
 
 @router.websocket("/ws/interview/{session_id}")
@@ -27,8 +27,6 @@ async def interview_websocket(websocket: WebSocket, session_id: str):
 
             if "bytes" in data:
                 raw_bytes = data["bytes"]
-
-                # Try decoding as an image frame first (JPEG from frontend canvas)
                 np_arr = np.frombuffer(raw_bytes, np.uint8)
                 frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
@@ -39,7 +37,6 @@ async def interview_websocket(websocket: WebSocket, session_id: str):
                     posture = posture_score(pose_landmarks)
                     session_aggregators[session_id].add_frame_scores(eye, posture)
                 else:
-                    # Otherwise treat as audio chunk
                     audio_path = save_audio_chunk(raw_bytes)
                     transcript = transcribe_audio(audio_path)
                     os.remove(audio_path)
@@ -55,6 +52,21 @@ async def interview_websocket(websocket: WebSocket, session_id: str):
                     result = evaluate_answer(msg["question"], msg["transcript"])
                     vision_avg = session_aggregators[session_id].get_averages()
                     session_aggregators[session_id].reset()
+
+                    # Save to database
+                    db = SessionLocal()
+                    try:
+                        save_answer(
+                            db,
+                            int(session_id),
+                            msg["question"],
+                            msg["transcript"],
+                            result["content_score"],
+                            result["structure_score"],
+                            result["improvement"]
+                        )
+                    finally:
+                        db.close()
 
                     await manager.send_json(session_id, {
                         "type": "evaluation",
